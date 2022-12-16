@@ -1,39 +1,97 @@
 # History files
-.Rhistory
-.Rapp.history
 
 # Session Data files
-.RData
+#CleanDF <- read.csv("[wide dataframe from NDSR files 4 and 9]")
+#NOVADF <- read.csv("[long dataframe from ingdeient file (NDSR file 1) with NOVA scores calculated]")
+#USDA <-  read.csv("[Modified NDSR codebook with only columns for food name, USDA code, and USDA description]") 
 
-# User-specific files
-.Ruserdata
+#creating a DF with only the columns we need
+SigaDF <- subset(NOVADF[, c("cpartid", "FoodName", "GramAmountofFood", "Energy_kcal_ByFood", "Sodium..mg.","Total.Sugars..g.", "Total_Fat_g_ByFood", "NovaScore")])
 
-# Example code in package build process
-*-Ex.R
 
-# Output files from R CMD build
-/*.tar.gz
+#adding USDA codes to food names
+SigaDF <- merge(USDA, SigaDF)
+colnames(SigaDF)[colnames(SigaDF) == "ï..USDAFoodGroupCode"] ="USDACode"  # fixed the funny column name
 
-# Output files from R CMD check
-/*.Rcheck/
+***create salt grams, sugar grams, fat grams per 100g***
+#convert sodium mg to grams of salt
+SigaDF$Salt <-((SigaDF$Sodium..mg.)*2.5)/1000
+summary(SigaDF$Salt)
 
-# RStudio files
-.Rproj.user/
+#create variable that is grams of each per 100g
+SigaDF$Siga_Salt <-SigaDF$Salt/SigaDF$GramAmountofFood*100
+SigaDF$Siga_Sugar <- SigaDF$Total.Sugars..g./SigaDF$GramAmountofFood*100
+SigaDF$Siga_Fat <- SigaDF$Total_Fat_g_ByFood/SigaDF$GramAmountofFood*100
 
-# produced vignettes
-vignettes/*.html
-vignettes/*.pdf
 
-# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
-.httr-oauth
+***separated foods and beverages based on USDA codes***
+#this was a manual process by which we looked at all the food codes from our dataset and identified all USDA food codes that were beverages.  There may be other USDA beverage codes that we did not need for our dataset
 
-# knitr and R markdown default cache directories
-*_cache/
-/cache/
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==111, "Bev", NA)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==112, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==113, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==115, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==284, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==951, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==612, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==641, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==642, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==925, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==743, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==921, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==922, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==923, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==924, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==926, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==928, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==929, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==940, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==941, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==942, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==953, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==935, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==934, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==933, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==932, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(SigaDF$USDACode==931, "Bev", SigaDF$FoodBev)
+SigaDF$FoodBev <- ifelse(is.na(SigaDF$FoodBev), "Food", SigaDF$FoodBev)
 
-# Temporary files created by R markdown
-*.utf8.md
-*.knit.md
+***create variable for high vs. balanced***
+# These cut points came from Davidou, et al. (2020). The holistico-reductionist Siga classification according to degree of food processing...doi:10.1039/C9FO02271F. 
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Salt>0.75 & SigaDF$FoodBev=="Bev", "High", NA)
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Sugar>6.25 & SigaDF$FoodBev=="Bev", "High", SigaDF$HighBalanced)
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Fat>8.75 & SigaDF$FoodBev=="Bev", "High", SigaDF$HighBalanced)
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Salt>1.5 & SigaDF$FoodBev=="Food", "High", SigaDF$HighBalanced)
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Sugar>12.5 & SigaDF$FoodBev=="Food", "High", SigaDF$HighBalanced)
+SigaDF$HighBalanced <- ifelse(SigaDF$Siga_Fat>17.5 & SigaDF$FoodBev=="Food", "High", SigaDF$HighBalanced)
+SigaDF$HighBalanced <- ifelse(is.na(SigaDF$HighBalanced), "Balanced", SigaDF$HighBalanced)
 
-# R Environment Variables
-.Renviron
+***Assign Siga Score***
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="High" & SigaDF$NovaScore==3, "Nova3High", NA)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="High" & SigaDF$NovaScore==4, "Nova4High", SigaDF$SigaScore)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="Balanced" & SigaDF$NovaScore==3, "Nova3Balanced", SigaDF$SigaScore)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="Balanced" & SigaDF$NovaScore==4, "Nova4Balanced", SigaDF$SigaScore)
+
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="Balanced" & SigaDF$NovaScore==1, "Nova1Balanced", SigaDF$SigaScore)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="Balanced" & SigaDF$NovaScore==2, "Nova2Balanced", SigaDF$SigaScore)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="High" & SigaDF$NovaScore==1, "Nova1High", SigaDF$SigaScore)
+SigaDF$SigaScore <- ifelse(SigaDF$HighBalanced=="High" & SigaDF$NovaScore==2, "Nova2High", SigaDF$SigaScore)
+
+***Evaluate Intake Per participant in Each Category***
+#create a datatable that shows amount of grams and amount of calories each participant had from each siga category
+library(data.table)
+subsiga <- data.table::dcast(setDT(SigaDF), cpartid ~ SigaScore, value.var = c('Energy_kcal_ByFood', 'GramAmountofFood'), 
+      fun.aggregate = sum) 
+
+#merge this table with the wide data -- csv in which each participant has only one row.  
+CleanDF_siga <-merge.data.frame(CleanDF, subsiga)
+
+#need to account for number of recalls -- most participant had 2, so need to get the average.  
+CleanDF_siga$HighNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3High/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$HighNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3High/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$BalancedNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3Balanced/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$BalancedNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3Balanced/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$HighNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4High/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$HighNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4High/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$BalancedNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4Balanced/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$BalancedNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4Balanced/CleanDF_siga$NumOfRecalls)
