@@ -87,11 +87,12 @@ subsiga <- data.table::dcast(setDT(SigaDF), cpartid ~ SigaScore, value.var = c('
 CleanDF_siga <-merge.data.frame(CleanDF, subsiga)
 
 #need to account for number of recalls -- most participant had 2, so need to get the average.  
-CleanDF_siga$HighNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3High/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$HighNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3High/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$BalancedNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3Balanced/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$BalancedNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3Balanced/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$HighNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4High/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$HighNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4High/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$BalancedNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4Balanced/CleanDF_siga$NumOfRecalls)
-CleanDF_siga$BalancedNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4Balanced/CleanDF_siga$NumOfRecalls)
+CleanDF_siga$BalancedNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3Balanced/CleanDF_siga$NumOfRecalls) #calories from B1
+CleanDF_siga$BalancedNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3Balanced/CleanDF_siga$NumOfRecalls) #grams from B1
+CleanDF_siga$HighNova3_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova3High/CleanDF_siga$NumOfRecalls)  #calories in B2
+CleanDF_siga$HighNova3_g <- (CleanDF_siga$GramAmountofFood_Nova3High/CleanDF_siga$NumOfRecalls)  #grams from B2
+CleanDF_siga$BalancedNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4Balanced/CleanDF_siga$NumOfRecalls) #calories from C0.1
+CleanDF_siga$BalancedNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4Balanced/CleanDF_siga$NumOfRecalls) #Cgrams from C0.1
+CleanDF_siga$HighNova4_c <- (CleanDF_siga$Energy_kcal_ByFood_Nova4High/CleanDF_siga$NumOfRecalls)#calories from C0.2
+CleanDF_siga$HighNova4_g <- (CleanDF_siga$GramAmountofFood_Nova4High/CleanDF_siga$NumOfRecalls) #grams from C0.2
+
