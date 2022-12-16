@@ -3,7 +3,7 @@
 # Session Data files
 #CleanDF <- read.csv("[wide dataframe from NDSR files 4 and 9]")
 #NOVADF <- read.csv("[long dataframe from ingdeient file (NDSR file 1) with NOVA scores calculated]")
-#USDA <-  read.csv("[Modified NDSR codebook with only columns for food name, USDA code, and USDA description]") 
+#USDA <-  read.csv("[Modified NDSR codebook with only columns for FoodName and USDA code]") 
 
 #creating a DF with only the columns we need
 SigaDF <- subset(NOVADF[, c("cpartid", "FoodName", "GramAmountofFood", "Energy_kcal_ByFood", "Sodium..mg.","Total.Sugars..g.", "Total_Fat_g_ByFood", "NovaScore")])
